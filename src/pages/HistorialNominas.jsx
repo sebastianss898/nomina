@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, query, orderBy,deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import Layout from "../components/Layout";
 import Modal from "../components/Modal";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { generarComprobantePDF } from "../utils/generarComprobantePDF";
 
 export default function HistorialNominas() {
   const [nominas, setNominas] = useState([]);
@@ -23,7 +33,7 @@ export default function HistorialNominas() {
     cargarNominas();
   }, []);
 
-  // Filtrar nóminas según los campos
+  // filtros
   const nominasFiltradas = nominas.filter((nomina) => {
     const coincideEmpleado =
       filtroEmpleado === "" ||
@@ -42,12 +52,12 @@ export default function HistorialNominas() {
 
     return coincideEmpleado && coincideMes && coincideCedula;
   });
-
+  //modal para detalles
   const abrirModal = (nomina) => {
     setNominaSeleccionada(nomina);
     setIsModalOpen(true);
   };
-
+  // busca y trae nomina
   const obtenerNomina = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "nominas"));
@@ -60,7 +70,9 @@ export default function HistorialNominas() {
       console.error("Error al obtener empleados:", error);
     }
   };
-  const eliminarNomina  = async (id) => {
+
+  //eliminar nominas
+  const eliminarNomina = async (id) => {
     const confirmar = window.confirm(
       "¿Estás seguro de que deseas eliminar este empleado?"
     );
@@ -74,7 +86,7 @@ export default function HistorialNominas() {
       console.error("Error al eliminar empleado:", error);
     }
   };
-
+  
   return (
     <Layout>
       <div className="max-w-6xl mx-auto mt-10 p-6 bg-white shadow rounded">
@@ -89,18 +101,20 @@ export default function HistorialNominas() {
             onChange={(e) => setFiltroEmpleado(e.target.value)}
             className="border p-2 w-1/2"
           />
-          <input
-            type="text"
-            placeholder="Filtrar por mes (ej: abril)"
-            value={filtroMes}
-            onChange={(e) => setFiltroMes(e.target.value)}
-            className="border p-2 w-1/2"
-          />
+
           <input
             type="text"
             placeholder="Filtrar por cédula"
             value={filtroCedula}
             onChange={(e) => setFiltroCedula(e.target.value)}
+            className="border p-2 w-1/2"
+          />
+
+          <input
+            type="text"
+            placeholder="Filtrar por mes (ej: abril)"
+            value={filtroMes}
+            onChange={(e) => setFiltroMes(e.target.value)}
             className="border p-2 w-1/2"
           />
         </div>
@@ -139,6 +153,13 @@ export default function HistorialNominas() {
                       className="bg-red-500 text-white px-3 py-1 rounded"
                     >
                       eliminar nomina
+                    </button>
+
+                    <button
+                      onClick={() => generarComprobantePDF(nomina)}
+                      className="bg-green-600 text-white px-3 py-1 rounded"
+                    >
+                      Generar PDF
                     </button>
                   </div>
                 </td>

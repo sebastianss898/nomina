@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
@@ -7,12 +13,48 @@ import Modal from "../components/Modal";
 
 export default function Dashboard() {
   const [empleados, setEmpleados] = useState([]);
+  const [formulario, setFormulario] = useState({
+    nombre: "",
+    cedula: "",
+    cargo: "",
+    salario: "",
+    estado: "activo",
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
 
   const abrirModal = (empleado) => {
     setEmpleadoSeleccionado(empleado);
+    setFormulario({
+      nombre: empleado.nombre,
+      cedula: empleado.cedula,
+      cargo: empleado.cargo,
+      salario: empleado.salario,
+      estado: empleado.estado,
+    });
     setIsModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormulario({ ...formulario, [name]: value });
+  };
+
+  const handleEstadoChange = (e) => {
+    setFormulario({ ...formulario, estado: e.target.value });
+  };
+
+  const guardarCambios = async () => {
+    try {
+      await updateDoc(
+        doc(db, "empleados", empleadoSeleccionado.id),
+        formulario
+      );
+      obtenerEmpleados(); // refrescar tabla
+      setIsModalOpen(false); // cerrar modal
+    } catch (error) {
+      console.error("Error al actualizar empleado:", error);
+    }
   };
 
   const obtenerEmpleados = async () => {
@@ -121,24 +163,72 @@ export default function Dashboard() {
           {empleadoSeleccionado && (
             <div className="space-y-4">
               <p>
-                <strong>Nombre:</strong> {empleadoSeleccionado.nombre}
+                <strong>Nombre:</strong>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formulario.nombre}
+                  onChange={handleChange}
+                  className="w-full border p-2"
+                />
               </p>
               <p>
-                <strong>Cédula:</strong> {empleadoSeleccionado.cedula}
+                <strong>Cédula:</strong>
+                <input
+                  type="text"
+                  name="cedula"
+                  value={formulario.cedula}
+                  onChange={handleChange}
+                  className="w-full border p-2"
+                />
               </p>
               <p>
-                <strong>Cargo:</strong> {empleadoSeleccionado.cargo}
+                <strong>Cargo: </strong>
+                <input
+                  type="text"
+                  name="cargo"
+                  value={formulario.cargo}
+                  onChange={handleChange}
+                  className="w-full border p-2"
+                />
               </p>
               <p>
                 <strong>Salario:</strong> $
-                {empleadoSeleccionado.salario?.toLocaleString()}
+                <input
+                  type="text"
+                  name="salario"
+                  value={formulario.salario}
+                  onChange={handleChange}
+                  className="w-full border p-2"
+                />
               </p>
               <p>
                 <strong>Estado:</strong> {empleadoSeleccionado.estado}
               </p>
-              
+              <input
+                type="radio"
+                name="estado"
+                value="activo"
+                checked={formulario.estado === "activo"}
+                onChange={handleEstadoChange}
+              />{" "}
+              Activo
+              <input
+                type="radio"
+                name="estado"
+                value="inactivo"
+                checked={formulario.estado === "inactivo"}
+                onChange={handleEstadoChange}
+              />{" "}
+              Inactivo
             </div>
           )}
+          <button
+            onClick={guardarCambios}
+            className="bg-green-600 text-white px-4 py-2 rounded mt-3"
+          >
+            Guardar Cambios
+          </button>
         </Modal>
       </div>
     </Layout>
