@@ -10,6 +10,7 @@ import { db } from "../firebase";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
 import Modal from "../components/Modal";
+import { FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 
 export default function Dashboard() {
   const [empleados, setEmpleados] = useState([]);
@@ -102,7 +103,7 @@ export default function Dashboard() {
             to="/empleado/nuevo"
             className="bg-blue-600 text-white px-4 py-2 rounded -mb-px"
           >
-            + Agregar
+            Agregar nuevo
           </Link>
         </div>
         <Link
@@ -140,13 +141,13 @@ export default function Dashboard() {
                       onClick={() => abrirModal(emp)}
                       className="bg-blue-600 text-white px-3 py-1 rounded"
                     >
-                      Editar
+                      <FaRegEdit/>  
                     </button>
                     <button
                       onClick={() => eliminarEmpleado(emp.id)}
                       className="bg-red-600 text-white px-3 py-1 rounded"
                     >
-                      Eliminar
+                      <FaRegTrashAlt />
                     </button>
                   </div>
                 </td>
@@ -156,80 +157,89 @@ export default function Dashboard() {
         </table>
 
         <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Editar Empleado"
-        >
-          {empleadoSeleccionado && (
-            <div className="space-y-4">
-              <p>
-                <strong>Nombre:</strong>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formulario.nombre}
-                  onChange={handleChange}
-                  className="w-full border p-2"
-                />
-              </p>
-              <p>
-                <strong>Cédula:</strong>
-                <input
-                  type="text"
-                  name="cedula"
-                  value={formulario.cedula}
-                  onChange={handleChange}
-                  className="w-full border p-2"
-                />
-              </p>
-              <p>
-                <strong>Cargo: </strong>
-                <input
-                  type="text"
-                  name="cargo"
-                  value={formulario.cargo}
-                  onChange={handleChange}
-                  className="w-full border p-2"
-                />
-              </p>
-              <p>
-                <strong>Salario:</strong> $
-                <input
-                  type="text"
-                  name="salario"
-                  value={formulario.salario}
-                  onChange={handleChange}
-                  className="w-full border p-2"
-                />
-              </p>
-              <p>
-                <strong>Estado:</strong> {empleadoSeleccionado.estado}
-              </p>
-              <input
-                type="radio"
-                name="estado"
-                value="activo"
-                checked={formulario.estado === "activo"}
-                onChange={handleEstadoChange}
-              />{" "}
-              Activo
-              <input
-                type="radio"
-                name="estado"
-                value="inactivo"
-                checked={formulario.estado === "inactivo"}
-                onChange={handleEstadoChange}
-              />{" "}
-              Inactivo
-            </div>
-          )}
-          <button
-            onClick={guardarCambios}
-            className="bg-green-600 text-white px-4 py-2 rounded mt-3"
-          >
-            Guardar Cambios
-          </button>
-        </Modal>
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  title="Editar Empleado"
+>
+  {empleadoSeleccionado && (
+    <div className="space-y-4 text-pastel-textMain">
+      <p>
+        <strong>Nombre:</strong>
+        <input
+          type="text"
+          name="nombre"
+          value={formulario.nombre}
+          onChange={handleChange}
+          className="w-full border border-pastel-inputFocus p-2 rounded focus:outline-none focus:border-pastel-selectionBorder"
+        />
+      </p>
+      <p>
+        <strong>Cédula:</strong>
+        <input
+          type="text"
+          name="cedula"
+          value={formulario.cedula}
+          onChange={handleChange}
+          className="w-full border border-pastel-inputFocus p-2 rounded focus:outline-none focus:border-pastel-selectionBorder"
+        />
+      </p>
+      <p>
+        <strong>Cargo: </strong>
+        <input
+          type="text"
+          name="cargo"
+          value={formulario.cargo}
+          onChange={handleChange}
+          className="w-full border border-pastel-inputFocus p-2 rounded focus:outline-none focus:border-pastel-selectionBorder"
+        />
+      </p>
+      <p>
+        <strong>Salario:</strong> $
+        <input
+          type="text"
+          name="salario"
+          value={formulario.salario}
+          onChange={handleChange}
+          className="w-full border border-pastel-inputFocus p-2 rounded focus:outline-none focus:border-pastel-selectionBorder"
+        />
+      </p>
+      <p>
+        <strong>Estado:</strong> {empleadoSeleccionado.estado}
+      </p>
+      <div className="space-x-4">
+        <label>
+          <input
+            type="radio"
+            name="estado"
+            value="activo"
+            checked={formulario.estado === "activo"}
+            onChange={handleEstadoChange}
+            className="accent-pastel-primary"
+          />{" "}
+          Activo
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="estado"
+            value="inactivo"
+            checked={formulario.estado === "inactivo"}
+            onChange={handleEstadoChange}
+            className="accent-pastel-primary"
+          />{" "}
+          Inactivo
+        </label>
+      </div>
+    </div>
+  )}
+  <button
+    onClick={guardarCambios}
+    className="bg-pastel-primary text-white px-4 py-2 rounded mt-3 hover:bg-pastel-selectionBorder"
+  >
+    Guardar Cambios
+  </button>
+</Modal>
+
       </div>
     </Layout>
   );
