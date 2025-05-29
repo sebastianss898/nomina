@@ -12,7 +12,7 @@ import Layout from "../components/Layout";
 import Modal from "../components/Modal";
 import { FaRegTrashAlt, FaRegEdit } from "react-icons/fa";
 
-export default function Dashboard() {
+export default function ListEmpleados() {
   const [empleados, setEmpleados] = useState([]);
   const [formulario, setFormulario] = useState({
     nombre: "",

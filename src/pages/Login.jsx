@@ -17,7 +17,7 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      navigate("/init");
     } catch (error) {
       let errorMessage = "Error al iniciar sesión";
       switch (error.code) {

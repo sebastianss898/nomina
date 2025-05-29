@@ -12,6 +12,8 @@ import {
 import Layout from "../components/Layout";
 
 export default function RegistroNomina() {
+  const actualDate = new Date();
+
   const [empleados, setEmpleados] = useState([]);
   const [salarioBase, setSalarioBase] = useState(0);
 
@@ -21,6 +23,8 @@ export default function RegistroNomina() {
 
   const diasLaborados = watch("diasLaborados") || 0;
   const auxTransporte = 200000;
+  const year = actualDate.getFullYear();
+  const monthT = actualDate.toLocaleDateString("es-ES", { month: "long" }); //retorna mes en texto
 
   //proporcionales
   const auxDias = (auxTransporte / 30) * diasLaborados;
@@ -107,12 +111,12 @@ export default function RegistroNomina() {
 
           <div>
             <label className="block mb-1 font-semibold">Año</label>
+
             <input
               type="number"
               {...register("año")}
-              placeholder="2025"
               className="w-full border p-2"
-              defaultValue={"2025"}
+              defaultValue={year}
             />
           </div>
 
@@ -121,19 +125,20 @@ export default function RegistroNomina() {
             <input
               type="text"
               {...register("mes")}
-              placeholder="Ej: Abril"
               className="w-full border p-2"
+              defaultValue={monthT}
             />
           </div>
 
           <div>
-            <label className="block mb-1 font-semibold">Dias laborados</label>
-            <input
-              type="text"
+            <label className="block mb-1 font-semibold">Periodo </label>
+            <select
               {...register("quincena")}
-              placeholder="Ej: 01 al 15"
-              className="w-full border p-2"
-            />
+              className="border rounded px-2 py-1 w-full"
+            >
+              <option value="01-15">Del 01 al 15</option>
+              <option value="16-30">Del 16 al 30</option>
+            </select>
           </div>
 
           <div>

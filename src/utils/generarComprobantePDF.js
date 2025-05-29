@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 // Puedes importar una imagen base64 o pasarla como parámetro si prefieres
-import logo from "../img/LEGO.png"; // Asegúrate que Webpack pueda manejar imágenes
+import logo from "../img/logo.jpg"; // Asegúrate que Webpack pueda manejar imágenes
 
 export const generarComprobantePDF = (nomina) => {
   const doc = new jsPDF();
