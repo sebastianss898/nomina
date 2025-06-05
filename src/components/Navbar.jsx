@@ -1,50 +1,52 @@
 import { Link } from "react-router-dom";
-import logo from "../img/logo.jpg"; // O usa "/logo.png" si está en public
+import logo from "../img/logo.png"; // O usa "/logo.png" si está en public
 
 export default function Navbar() {
   return (
-    <nav className="bg-blue-600 text-white p-4 shadow-md">
+    
+    <nav className="bg-[#E0BBE4] text-[#333] p-4 shadow-sm">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/Init" className="flex items-center space-x-2">
-          <div className=" h-15 w-10">
-            <img src={logo} alt="Logo" className=" w-auto" />
+        <Link to="/Init" className="flex items-center space-x-3">
+          <div className="h-10 w-10">
+            <img src={logo} alt="Logo" className="w-full h-full object-contain" />
           </div>
-          {/*<span className="text-2xl font-bold">Fácil Nómina</span>*/}
+          <span className="text-xl font-semibold">Fácil Nómina</span>
         </Link>
 
-        <div className="flex space-x-4">
+        <div className="flex space-x-3 text-sm font-medium">
           <Link
             to="/"
-            className="hover:bg-blue-500 px-3 py-2 rounded transition"
+            className="px-3 py-2 rounded hover:bg-[#D3CCE3] transition duration-200"
           >
             Login
           </Link>
           <Link
             to="/Init"
-            className="hover:bg-blue-500 px-3 py-2 rounded transition"
+            className="px-3 py-2 rounded hover:bg-[#D3CCE3] transition duration-200"
           >
             Inicio
           </Link>
           <Link
             to="/lista"
-            className="hover:bg-blue-500 px-3 py-2 rounded transition"
+            className="px-3 py-2 rounded hover:bg-[#D3CCE3] transition duration-200"
           >
-            lista de empleados
+            Lista de empleados
           </Link>
           <Link
             to="/nominas/historial"
-            className="hover:bg-blue-500 px-3 py-2 rounded transition"
+            className="px-3 py-2 rounded hover:bg-[#D3CCE3] transition duration-200"
           >
-            historial de nomina
+            Historial de nómina
           </Link>
           <Link
             to="/nomina/nueva"
-            className="hover:bg-blue-500 px-3 py-2 rounded transition"
+            className="px-3 py-2 rounded hover:bg-[#D3CCE3] transition duration-200"
           >
-            Crear nomina
+            Crear nómina
           </Link>
         </div>
       </div>
     </nav>
+   
   );
 }
