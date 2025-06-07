@@ -28,6 +28,13 @@ export default function HistorialNominas() {
     setNominas(lista);
   };
 
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
+
   useEffect(() => {
     cargarNominas();
   }, []);
@@ -159,7 +166,7 @@ export default function HistorialNominas() {
                   <td className="border border-pastel-inputBorder px-4 py-2">{nomina.mes}</td>
                   <td className="border border-pastel-inputBorder px-4 py-2">{nomina.año}</td>
                   <td className="border border-pastel-inputBorder px-4 py-2 font-semibold text-pastel-textMain text-right">
-                    ${nomina.totalAPagar?.toLocaleString()}
+                    {formatCurrency(nomina.totalAPagar)}
                   </td>
                   <td className="border border-pastel-inputBorder px-4 py-2">
                     <div className="flex gap-2 justify-center flex-wrap">
@@ -230,11 +237,11 @@ export default function HistorialNominas() {
             </p>
             <p>
               <strong>Deducciones:</strong> $
-              {nominaSeleccionada.deducciones?.toLocaleString()}
+              {formatCurrency(nominaSeleccionada.deducciones)}
             </p>
             <p>
               <strong>Total Pagado:</strong> $
-              {nominaSeleccionada.totalAPagar?.toLocaleString()}
+              {formatCurrency(nominaSeleccionada.totalAPagar)}
             </p>
           </div>
         )}

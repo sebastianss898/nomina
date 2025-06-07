@@ -21,17 +21,44 @@ export default function RegistroNomina() {
   const auxTransporte = 200000;
   const diasLaborados = watch("diasLaborados") || 0;
   const deducciones = parseFloat(watch("deducciones") || 0);
-  const horasExtras = parseFloat(watch("totalHorasExtras") || 0);
+  const valorHora = salarioBase / 230;
 
-  const horasCampos = [
-    "Horas extra diurnas",
-    "Horas ordinarias nocturnas",
-    "Horas extra nocturnas",
-    "Horas ordinarias domingos o festivos",
-    "Horas extra diurnas domingos o festivos",
-    "Horas nocturnas domingos o festivos",
-    "Horas extra nocturnas domingos o festivos",
-  ];
+  const HED = parseFloat(watch("HED") || 0);
+  const HON = parseFloat(watch("HON") || 0);
+  const HEN = parseFloat(watch("HEN") || 0);
+  const HODF = parseFloat(watch("HODF") || 0);
+  const HEDDF = parseFloat(watch("HEDDF") || 0);
+  const HNDF = parseFloat(watch("HNDF") || 0);
+  const HENDF = parseFloat(watch("HENDF") || 0);
+
+  const calcularHorasExtras = () => {
+  const CHED = HED * (valorHora * 1.25);
+  const CHON = HON * (valorHora * 1.35);
+  const CHEN = HEN * (valorHora * 1.75);
+  const CHODF = HODF * (valorHora * 1.75);
+  const CHEDDF = HEDDF * (valorHora * 2);
+  const CHNDF = HNDF * (valorHora * 2);
+  const CHENDF = HENDF * (valorHora * 2.5);
+
+  return {
+    CHED,
+    CHON,
+    CHEN,
+    CHODF,
+    CHEDDF,
+    CHNDF,
+    CHENDF,
+    total: CHED + CHON + CHEN + CHODF + CHEDDF + CHNDF + CHENDF,
+  };
+};
+
+
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
 
   useEffect(() => {
     const cargarEmpleados = async () => {
@@ -53,87 +80,81 @@ export default function RegistroNomina() {
     }
   };
 
-  {
-    /*esta parte retornla la tabla de verificacion final */
-  }
-  const { salarioDias, auxDias, desSalud, desPension, totalAPagar } =
-    useMemo(() => {
-      const salarioDias = (salarioBase / 30) * diasLaborados;
-      const auxDias = (auxTransporte / 30) * diasLaborados;
-      const desSalud = salarioDias * 0.04;
-      const desPension = salarioDias * 0.04;
-      const total =
-        salarioDias + auxDias - (desSalud + desPension + deducciones);
+ 
 
-      return { salarioDias, auxDias, desSalud, desPension, totalAPagar: total };
-    }, [salarioBase, diasLaborados, deducciones]);
+  const horasExtras = useMemo(() => calcularHorasExtras(), [
+  HED, HON, HEN, HODF, HEDDF, HNDF, HENDF, valorHora,
+]);
+
+const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } = useMemo(() => {
+  const salarioDias = (salarioBase / 30) * diasLaborados;
+  const auxDias = (auxTransporte / 30) * diasLaborados;
+  const desSalud = salarioDias * 0.04;
+  const desPension = salarioDias * 0.04;
+  const total = salarioDias + auxDias + horasExtras.total - (desSalud + desPension + deducciones);
+
+  return {
+    salarioDias,
+    auxDias,
+    desSalud,
+    desPension,
+    totalPagoHE: horasExtras.total,
+    totalAPagar: total,
+  };
+}, [salarioBase, diasLaborados, deducciones, horasExtras]);
+
+   
 
   const onSubmit = async (data) => {
   try {
-    const horas = data.horas || [];
-    const horasNumericas = horas.map((h) => parseFloat(h) || 0);
-
-    // Tabla de porcentajes según el orden de las horas en tu formulario
-    const recargos = [ // en orden: ejemplo
-      0.25, // Hora extra diurna
-      0.75, // Hora extra nocturna
-      0.35, // Recargo nocturno
-      0.75, // Hora dominical o festiva
-      1.00, // Hora extra diurna dominical o festiva (25% + 75%)
-      1.10  // Hora extra nocturna dominical o festiva (75% + 35%)
-    ];
-
-    const valorHora = salarioBase / 240; // 240 horas/mes promedio
-
-    const totalHoras = horasNumericas.reduce((acc, val) => acc + val, 0);
-
-    // Calcular valor total de las horas con recargo
-    const valorTotalHoras = horasNumericas.reduce((acc, horas, index) => {
-      const recargo = recargos[index] || 0;
-      return acc + horas * valorHora * (1 + recargo);
-    }, 0);
-
-    const horasDetalle = horasCampos.reduce((obj, label, i) => {
-      obj[label] = {
-        cantidad: horasNumericas[i],
-        recargo: recargos[i] || 0,
-        valor: horasNumericas[i] * valorHora * (1 + (recargos[i] || 0))
-      };
-      return obj;
-    }, {});
-
-    await addDoc(collection(db, "nominas"), {
+    const datosLimpios = {
       ...data,
       salarioBase,
       diasLaborados: parseFloat(diasLaborados),
-      horasExtras: totalHoras,
-      horasDetalle,
-      valorTotalHoras,
       deducciones: parseFloat(deducciones),
       conceptoDeducciones: data.conceptoDeducciones,
-      totalAPagar: totalAPagar + valorTotalHoras,
+      horasExtras: horasExtras, 
+      HorasExtraDiurna:HED,
+      //PagoHorasExtraDiurna:calcularHorasExtras.CHED,
+      HorasOrdinariasNocturnas:HON,
+      //PagoHorasOrdinariasNocturnas:calcularHorasExtras.CHON,
+      HorasExtraNocturnas:HEN,
+      //PagoHorasExtraNocturnas:calcularHorasExtras.CHEN,
+      HorasOrdinariasDomingosFestivos:HODF,
+      //PagoHorasOrdinariasDomingosFestivos:calcularHorasExtras.CHODF,
+      HorasExtraEiurnasDomingosFestivoss:HEDDF,
+      //PagoHorasExtraEiurnasDomingosFestivoss:calcularHorasExtras.CHEDDF,
+      HorasNocturnasDomingosFestivos:HNDF,
+      //PagoHorasNocturnasDomingosFestivos:calcularHorasExtras.CHNDF,
+      HorasExtraNocturnasDomingosFestivos:HENDF,
+      //PagoHorasExtraNocturnasDomingosFestivos:calcularHorasExtras.CHENDF,
+      //totalPagoHE: calcularHorasExtras.total,
+      totalAPagar,
       fechaPago: serverTimestamp(),
-    });
+    };
 
-    await Swal.fire({
-      title: "¡Éxito!",
-      text: "La nómina ha sido registrada correctamente.",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false,
-    });
+      await addDoc(collection(db, "nominas"), datosLimpios);
 
-    reset();
-    setSalarioBase(0);
-  } catch (error) {
-    Swal.fire({
-      title: "Error",
-      text: `No se pudo registrar la nómina: ${error.message}`,
-      icon: "error",
-    });
-  }
-};
+      await Swal.fire({
+        title: "¡Éxito!",
+        text: "La nómina ha sido registrada correctamente.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
+      reset();
+      setSalarioBase(0);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: `No se pudo registrar la nómina: ${error.message}`,
+        icon: "error",
+      });
+    }
+  };
+
+  
 
   return (
     <Layout>
@@ -195,6 +216,7 @@ export default function RegistroNomina() {
                   })}
                   className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
                 />
+                
               </div>
               <div>
                 <label className="block font-medium">Quincena</label>
@@ -212,7 +234,7 @@ export default function RegistroNomina() {
               <label className="block font-medium">Días laborados</label>
               <input
                 type="number"
-                {...register("diasLaborados")}
+                {...register("diasLaborados", { min: 0, max: 30 })}
                 defaultValue={0}
                 className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
               />
@@ -225,6 +247,60 @@ export default function RegistroNomina() {
               Horas Extras
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block font-medium">Horas extra diurna</label>
+                <input
+                  type="number"
+                  {...register("HED")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas ordinarias nocturnas</label>
+                <input
+                  type="number"
+                  {...register("HON")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas extra nocturnas</label>
+                <input
+                  type="number"
+                  {...register("HEN")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas ordinarias domingos o festivos</label>
+                <input
+                  type="number"
+                  {...register("HODF")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas extra diurnas domingos o festivoss</label>
+                <input
+                  type="number"
+                  {...register("HEDDF")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas nocturnas domingos o festivos</label>
+                <input
+                  type="number"
+                  {...register("HNDF")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                <label className="block font-medium">Horas extra nocturnas domingos o festivos</label>
+                <input
+                  type="number"
+                  {...register("HENDF")}
+                  defaultValue={0}
+                  className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
+                />
+                
+            </div>
+           
+            
+            {/*<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {horasCampos.map((label, index) => (
                 <div key={index}>
                   <label className="block font-medium">{label}</label>
@@ -236,7 +312,7 @@ export default function RegistroNomina() {
                   />
                 </div>
               ))}
-            </div>
+            </div>*/}
           </div>
 
           {/* Sección: Deducciones */}
@@ -259,18 +335,13 @@ export default function RegistroNomina() {
                 <input
                   type="text"
                   {...register("conceptoDeducciones")}
-                  defaultValue="Préstamos"
+                  defaultValue=""
                   className="w-full bg-pastel-inputBg border border-pastel-inputBorder p-2 rounded"
                 />
               </div>
             </div>
           </div>
 
-          <input
-            type="hidden"
-            {...register("totalHorasExtras")}
-            value={horasExtras}
-          />
 
           {/* Sección: Resumen */}
           <div className="bg-white p-6 rounded-xl shadow border border-pastel-line">
@@ -283,34 +354,40 @@ export default function RegistroNomina() {
                   <td className="px-4 py-2 font-medium">
                     Salario base mensual
                   </td>
-                  <td className="px-4 py-2">${salarioBase.toLocaleString()}</td>
+                  <td className="px-4 py-2">{formatCurrency(salarioBase)}</td>
                 </tr>
                 <tr className="bg-pastel-tableRow">
                   <td className="px-4 py-2 font-medium">
                     Auxilio transporte mensual
                   </td>
-                  <td className="px-4 py-2">
-                    ${auxTransporte.toLocaleString()}
-                  </td>
+                  <td className="px-4 py-2">{formatCurrency(auxTransporte)}</td>
                 </tr>
                 <tr className="bg-pastel-tableRow">
                   <td className="px-4 py-2 font-medium">
                     Salario proporcional (días)
                   </td>
-                  <td className="px-4 py-2">${salarioDias.toLocaleString()}</td>
+                  <td className="px-4 py-2">{formatCurrency(salarioDias)}</td>
                 </tr>
                 <tr className="bg-pastel-tableRow">
                   <td className="px-4 py-2 font-medium">
                     Auxilio transporte (días)
                   </td>
-                  <td className="px-4 py-2">${auxDias.toLocaleString()}</td>
+                  <td className="px-4 py-2">{formatCurrency(auxDias)}</td>
                 </tr>
+                <tr className="bg-pastel-tableRow">
+                  <td className="px-4 py-2 font-medium">
+                    horas
+                  </td>
+                  <td className="px-4 py-2">{formatCurrency(totalPagoHE)}</td>
+                </tr>
+                
+                
                 <tr className="bg-pastel-tableRow">
                   <td className="px-4 py-2 font-medium text-red-500">
                     Descuento salud (4%)
                   </td>
                   <td className="px-4 py-2 text-red-500">
-                    -${desSalud.toLocaleString()}
+                    -{formatCurrency(desSalud)}
                   </td>
                 </tr>
                 <tr className="bg-pastel-tableRow">
@@ -318,7 +395,7 @@ export default function RegistroNomina() {
                     Descuento pensión (4%)
                   </td>
                   <td className="px-4 py-2 text-red-500">
-                    -${desPension.toLocaleString()}
+                    -{formatCurrency(desPension)}
                   </td>
                 </tr>
                 <tr className="bg-pastel-tableRow">
@@ -326,12 +403,13 @@ export default function RegistroNomina() {
                     Otras deducciones
                   </td>
                   <td className="px-4 py-2 text-red-500">
-                    -${deducciones.toLocaleString()}
+                    -{formatCurrency(deducciones)}
                   </td>
                 </tr>
+
                 <tr className="bg-pastel-primary text-white font-bold text-lg">
                   <td className="px-4 py-3">Total a pagar</td>
-                  <td className="px-4 py-3">${totalAPagar.toLocaleString()}</td>
+                  <td className="px-4 py-3">{formatCurrency(totalAPagar)}</td>
                 </tr>
               </tbody>
             </table>
