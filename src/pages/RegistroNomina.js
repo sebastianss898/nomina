@@ -37,7 +37,7 @@ export default function RegistroNomina() {
   const CHEN = HEN * (valorHora * 1.75);
   const CHODF = HODF * (valorHora * 1.75);
   const CHEDDF = HEDDF * (valorHora * 2);
-  const CHNDF = HNDF * (valorHora * 2);
+  const CHNDF = HNDF * (valorHora * 2.1);
   const CHENDF = HENDF * (valorHora * 2.5);
 
   return {
@@ -113,23 +113,18 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
       diasLaborados: parseFloat(diasLaborados),
       deducciones: parseFloat(deducciones),
       conceptoDeducciones: data.conceptoDeducciones,
+      desSalud,
+      desPension,
       horasExtras: horasExtras, 
       HorasExtraDiurna:HED,
-      //PagoHorasExtraDiurna:calcularHorasExtras.CHED,
       HorasOrdinariasNocturnas:HON,
-      //PagoHorasOrdinariasNocturnas:calcularHorasExtras.CHON,
       HorasExtraNocturnas:HEN,
-      //PagoHorasExtraNocturnas:calcularHorasExtras.CHEN,
       HorasOrdinariasDomingosFestivos:HODF,
-      //PagoHorasOrdinariasDomingosFestivos:calcularHorasExtras.CHODF,
       HorasExtraEiurnasDomingosFestivoss:HEDDF,
-      //PagoHorasExtraEiurnasDomingosFestivoss:calcularHorasExtras.CHEDDF,
       HorasNocturnasDomingosFestivos:HNDF,
-      //PagoHorasNocturnasDomingosFestivos:calcularHorasExtras.CHNDF,
       HorasExtraNocturnasDomingosFestivos:HENDF,
-      //PagoHorasExtraNocturnasDomingosFestivos:calcularHorasExtras.CHENDF,
-      //totalPagoHE: calcularHorasExtras.total,
       totalAPagar,
+      salarioDias,
       fechaPago: serverTimestamp(),
     };
 
