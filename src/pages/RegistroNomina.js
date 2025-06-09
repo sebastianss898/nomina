@@ -112,7 +112,7 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
       salarioBase,
       diasLaborados: parseFloat(diasLaborados),
       deducciones: parseFloat(deducciones),
-      conceptoDeducciones: data.conceptoDeducciones,
+      conceptoDeducciones: data.conceptoDeducciones||"",
       desSalud,
       desPension,
       horasExtras: horasExtras, 
@@ -123,11 +123,13 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
       HorasExtraEiurnasDomingosFestivoss:HEDDF,
       HorasNocturnasDomingosFestivos:HNDF,
       HorasExtraNocturnasDomingosFestivos:HENDF,
+      totalPagoExtra:totalPagoHE,
       totalAPagar,
       salarioDias,
       fechaPago: serverTimestamp(),
     };
-
+      
+    
       await addDoc(collection(db, "nominas"), datosLimpios);
 
       await Swal.fire({
@@ -147,6 +149,7 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
         icon: "error",
       });
     }
+    
   };
 
   
@@ -186,7 +189,7 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
             <input type="hidden" {...register("cedulaEmpleado")} />
           </div>
 
-          {/* Sección: Periodo */}
+          
           <div className="bg-white p-6 rounded-xl shadow border border-pastel-line space-y-4">
             <h3 className="text-xl font-semibold border-b pb-2">
               Periodo Laborado
@@ -421,4 +424,5 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
       </div>
     </Layout>
   );
+  
 }
