@@ -18,11 +18,15 @@ export default function RegistroNomina() {
   const { register, handleSubmit, watch, setValue, reset } = useForm();
 
   const actualDate = new Date();
-  const auxTransporte = 200000;
+  let auxTransporte = 200000;
   const diasLaborados = watch("diasLaborados") || 0;
   const deducciones = parseFloat(watch("deducciones") || 0);
   const valorHora = salarioBase / 230;
 
+  if (salarioBase >= 2847000) {
+    auxTransporte = 0;
+  }
+  
   const HED = parseFloat(watch("HED") || 0);
   const HON = parseFloat(watch("HON") || 0);
   const HEN = parseFloat(watch("HEN") || 0);
@@ -52,6 +56,7 @@ export default function RegistroNomina() {
   };
 };
 
+  
 
   const formatCurrency = (value) =>
     new Intl.NumberFormat("es-CO", {
@@ -86,12 +91,14 @@ export default function RegistroNomina() {
   HED, HON, HEN, HODF, HEDDF, HNDF, HENDF, valorHora,
 ]);
 
-const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } = useMemo(() => {
+const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE, Neto } = useMemo(() => {
   const salarioDias = (salarioBase / 30) * diasLaborados;
   const auxDias = (auxTransporte / 30) * diasLaborados;
   const desSalud = salarioDias * 0.04;
   const desPension = salarioDias * 0.04;
+  const Neto = salarioDias+auxDias-(desSalud + desPension + deducciones);
   const total = salarioDias + auxDias + horasExtras.total - (desSalud + desPension + deducciones);
+  
 
   return {
     salarioDias,
@@ -100,6 +107,7 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
     desPension,
     totalPagoHE: horasExtras.total,
     totalAPagar: total,
+    Neto
   };
 }, [salarioBase, diasLaborados, deducciones, horasExtras]);
 
@@ -124,6 +132,8 @@ const { salarioDias, auxDias, desSalud, desPension, totalAPagar, totalPagoHE } =
       HorasNocturnasDomingosFestivos:HNDF,
       HorasExtraNocturnasDomingosFestivos:HENDF,
       totalPagoExtra:totalPagoHE,
+      auxDias,
+      Neto,
       totalAPagar,
       salarioDias,
       fechaPago: serverTimestamp(),

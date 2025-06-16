@@ -12,6 +12,8 @@ import Layout from "../components/Layout";
 import Modal from "../components/Modal";
 import Swal from "sweetalert2";
 import { generarComprobantePDF } from "../utils/generarComprobantePDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { ComprobanteNominaPDF } from "../utils/generarComprobantePDF"; // debe ser una exportación nombrada
 
 export default function HistorialNominas() {
   const [nominas, setNominas] = useState([]);
@@ -205,12 +207,15 @@ export default function HistorialNominas() {
                       >
                         Eliminar
                       </button>
-                      <button
-                        onClick={() => generarComprobantePDF(nomina)}
+                      <PDFDownloadLink
+                        document={<ComprobanteNominaPDF nomina={nomina} />}
+                        fileName={`comprobante_nomina_${nomina.nombreEmpleado}.pdf`}
                         className="bg-pastel-success hover:bg-green-700 transition-colors text-white px-3 py-1 rounded-md text-sm"
                       >
-                        Generar PDF
-                      </button>
+                        {({ loading }) =>
+                          loading ? "Generando PDF..." : "Descargar PDF"
+                        }
+                      </PDFDownloadLink>
                     </div>
                   </td>
                 </tr>
